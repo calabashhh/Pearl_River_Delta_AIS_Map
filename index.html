@@ -73,9 +73,13 @@ socket.onmessage = async function (event) {
     `;
 
     if (shipMarkers[mmsi]) {
-      shipMarkers[mmsi]
-        .setLatLng([lat, lon])
-        .setPopupContent(popupContent);
+      shipMarkers[mmsi] = L.circleMarker([lat, lon], {
+      radius: 6,
+      fillOpacity: 0.8,
+      weight: 1
+   })
+        .addTo(map)
+        .bindPopup(popupContent);
     } else {
       shipMarkers[mmsi] = L.marker([lat, lon])
         .addTo(map)
