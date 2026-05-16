@@ -53,27 +53,24 @@ socket.onmessage = async function (event) {
   // Convert Blob into text
   const text = await event.data.text();
 
-  console.log("RAW TEXT:", text);
+ console.log("Parsed AIS message:", data);
 
-  try {
-    const data = JSON.parse(text);
+const lat = data.MetaData?.latitude;
+const lon = data.MetaData?.longitude;
 
-    const lat = data.MetaData.latitude;
-    const lon = data.MetaData.longitude;
+console.log("lat/lon:", lat, lon);
 
-    const shipName = data.MetaData.ShipName?.trim() || "Unknown Ship";
+const shipName = data.MetaData?.ShipName?.trim() || "Unknown Ship";
 
-    if (lat && lon) {
-    
-        L.marker([lat, lon])
-          .addTo(map)
-          .bindPopup(`
-            <b>${shipName}</b><br>
-            MMSI: ${data.MetaData.MMSI}<br>
-            Type: ${data.MessageType}
-          `);
-    
-    }
+if (lat !== undefined && lon !== undefined) {
+  L.marker([lat, lon])
+    .addTo(map)
+    .bindPopup(`
+      <b>${shipName}</b><br>
+      MMSI: ${data.MetaData.MMSI}<br>
+      Type: ${data.MessageType}
+    `);
+}
 
     
     console.log("PARSED DATA:", data);
