@@ -1,10 +1,36 @@
 <!DOCTYPE html>
 <html>
-<body>
-  <h1>AISStream Test</h1>
-  <pre id="output">Connecting...</pre>
+<head>
+  <title>AISStream Test</title>
 
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+</head>
+<body>
+
+<h1>Pearl River Delta AIS Map</h1>
+
+<div id="map"></div>
+
+<style>
+  #map {
+    height: 90vh;
+    width: 100%;
+  }
+</style>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  
   <script>
+
+    const map = L.map('map').setView([22.3, 114.15], 10);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    
     const API_KEY = "53b45131d4f4f35298c7df332904efd0df5847e5";
 
     const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
@@ -32,6 +58,24 @@ socket.onmessage = async function (event) {
   try {
     const data = JSON.parse(text);
 
+    const lat = data.MetaData.latitude;
+    const lon = data.MetaData.longitude;
+
+    const shipName = data.MetaData.ShipName?.trim() || "Unknown Ship";
+
+    if (lat && lon) {
+    
+        L.marker([lat, lon])
+          .addTo(map)
+          .bindPopup(`
+            <b>${shipName}</b><br>
+            MMSI: ${data.MetaData.MMSI}<br>
+            Type: ${data.MessageType}
+          `);
+    
+    }
+
+    
     console.log("PARSED DATA:", data);
 
     document.getElementById("output").textContent =
