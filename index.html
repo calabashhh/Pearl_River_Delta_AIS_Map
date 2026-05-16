@@ -75,8 +75,7 @@ if (lat !== undefined && lon !== undefined) {
     
     console.log("PARSED DATA:", data);
 
-    document.getElementById("output").textContent =
-      JSON.stringify(data, null, 2);
+    console.log("AIS data:", data);
 
   } catch (err) {
     console.log("Could not parse JSON:", text);
@@ -85,7 +84,7 @@ if (lat !== undefined && lon !== undefined) {
 
     socket.onerror = function (error) {
       console.error("WebSocket error:", error);
-      document.getElementById("output").textContent = "WebSocket error. Check console.";
+      
     };
   </script>
 </body>
