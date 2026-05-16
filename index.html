@@ -73,17 +73,18 @@ socket.onmessage = async function (event) {
     `;
 
     if (shipMarkers[mmsi]) {
-      shipMarkers[mmsi] = L.circleMarker([lat, lon], {
-      radius: 6,
-      fillOpacity: 0.8,
-      weight: 1
-   })
-        .addTo(map)
-        .bindPopup(popupContent);
+      shipMarkers[mmsi]
+      .setLatLng([lat, lon])
+      .setPopupContent(popupContent);
+      
     } else {
-      shipMarkers[mmsi] = L.marker([lat, lon])
-        .addTo(map)
-        .bindPopup(popupContent);
+      shipMarkers[mmsi] = L.circleMarker([lat, lon], {
+        radius: 6,
+        fillOpacity: 0.8,
+        weight: 1
+      })
+  .addTo(map)
+  .bindPopup(popupContent);
     }
 
   } catch (err) {
