@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>AISStream Test</h1>
+  <pre id="output">Connecting...</pre>
+
+  <script>
+    const API_KEY = "53b45131d4f4f35298c7df332904efd0df5847e5";
+
+    const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
+
+    socket.onopen = function () {
+      document.getElementById("output").textContent = "Connected. Waiting for AIS messages...";
+
+      const subscriptionMessage = {
+        APIKey: API_KEY,
+        BoundingBoxes: [
+          [[21.0, 113.25], [22.6, 114.5]]
+        ]
+      };
+
+      socket.send(JSON.stringify(subscriptionMessage));
+    };
+
+    socket.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+      console.log(data);
+      document.getElementById("output").textContent =
+        JSON.stringify(data, null, 2);
+    };
+
+    socket.onerror = function (error) {
+      console.error("WebSocket error:", error);
+      document.getElementById("output").textContent = "WebSocket error. Check console.";
+    };
+  </script>
+</body>
+</html>
