@@ -48,35 +48,46 @@
     console.log("Subscription sent:", subscriptionMessage);
   };
 
-  socket.onmessage = async function (event) {
-    const text = await event.data.text();
+ const shipMarkers = {};
 
-    try {
-      const data = JSON.parse(text);
+const shipMarkers = {};
+    
+socket.onmessage = async function (event) {
+  const text = await event.data.text();
 
-      console.log("Parsed AIS message:", data);
+  try {
+    const data = JSON.parse(text);
 
-      const lat = data.MetaData?.latitude;
-      const lon = data.MetaData?.longitude;
+    const lat = data.MetaData?.latitude;
+    const lon = data.MetaData?.longitude;
+    const mmsi = data.MetaData?.MMSI;
+    const shipName = data.MetaData?.ShipName?.trim() || "Unknown Ship";
 
-      console.log("lat/lon:", lat, lon);
-
-      const shipName = data.MetaData?.ShipName?.trim() || "Unknown Ship";
-
-      if (lat !== undefined && lon !== undefined) {
-        L.marker([lat, lon])
-          .addTo(map)
-          .bindPopup(`
-            <b>${shipName}</b><br>
-            MMSI: ${data.MetaData.MMSI}<br>
-            Type: ${data.MessageType}
-          `);
-      }
-
-    } catch (err) {
-      console.log("Could not parse JSON:", text);
+    if (lat === undefined || lon === undefined || mmsi === undefined) {
+      return;
     }
-  };
+
+    const popupContent = `
+      <b>${shipName}</b><br>
+      MMSI: ${mmsi}<br>
+      Type: ${data.MessageType}<br>
+      Last update: ${data.MetaData?.time_utc || "Unknown"}
+    `;
+
+    if (shipMarkers[mmsi]) {
+      shipMarkers[mmsi]
+        .setLatLng([lat, lon])
+        .setPopupContent(popupContent);
+    } else {
+      shipMarkers[mmsi] = L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup(popupContent);
+    }
+
+  } catch (err) {
+    console.log("Could not parse JSON:", text);
+  }
+};
   socket.onclose = function (event) {
   console.log("WebSocket closed:", event);
   };
