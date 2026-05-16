@@ -12,6 +12,14 @@
 
 <h1>Pearl River Delta AIS Map</h1>
 
+<div id="stats">
+  <b>Live AIS Dashboard</b><br>
+  Active vessels: <span id="activeCount">0</span><br>
+  Position reports: <span id="positionCount">0</span><br>
+  Class B reports: <span id="classBCount">0</span><br>
+  Static data reports: <span id="staticCount">0</span>
+</div>
+  
 <div id="map"></div>
 
 <style>
@@ -19,6 +27,20 @@
     height: 90vh;
     width: 100%;
   }
+
+  #stats {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    z-index: 1000;
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  
 </style>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -52,6 +74,10 @@
     const shipTrails = {};
     const shipTrailCoords = {};
     const MAX_TRAIL_POINTS = 25;
+
+    let positionCount = 0;
+    let classBCount = 0;
+    let staticCount = 0;
 
     function getMarkerStyle(messageType) {
 
@@ -98,8 +124,19 @@ socket.onmessage = async function (event) {
 
   try {
     const data = JSON.parse(text);
+
+    if (data.MessageType === "PositionReport") positionCount++;
+    if (data.MessageType === "StandardClassBPositionReport") classBCount++;
+    if (data.MessageType === "ShipStaticData") staticCount++;
+
+    document.getElementById("activeCount").textContent =
+      Object.keys(shipMarkers).length;
+  
+    document.getElementById("positionCount").textContent = positionCount;
+    document.getElementById("classBCount").textContent = classBCount;
+    document.getElementById("staticCount").textContent = staticCount;
     
-        console.log("Full AIS message:", data);
+   //     console.log("Full AIS message:", data);
     
     const lat = data.MetaData?.latitude;
     const lon = data.MetaData?.longitude;
