@@ -44,13 +44,55 @@
       ]
     };
 
-    socket.send(JSON.stringify(subscriptionMessage));
-    console.log("Subscription sent:", subscriptionMessage);
+  socket.send(JSON.stringify(subscriptionMessage));
+  console.log("Subscription sent:", subscriptionMessage);
   };
 
     const shipMarkers = {};
     const shipTrails = {};
-    
+    const shipTrailCoords = {};
+    const MAX_TRAIL_POINTS = 25;
+
+    function getMarkerStyle(messageType) {
+
+        if (messageType === "PositionReport") {
+          return {
+            radius: 7,
+            color: "#1565c0",
+            fillColor: "#1e88e5",
+            fillOpacity: 0.85,
+            weight: 1
+          };
+        }
+      
+        if (messageType === "StandardClassBPositionReport") {
+          return {
+            radius: 5,
+            color: "#ef6c00",
+            fillColor: "#fb8c00",
+            fillOpacity: 0.8,
+            weight: 1
+          };
+        }
+      
+        if (messageType === "ShipStaticData") {
+          return {
+            radius: 4,
+            color: "#6a1b9a",
+            fillColor: "#8e24aa",
+            fillOpacity: 0.7,
+            weight: 1
+          };
+        }
+      
+        return {
+          radius: 4,
+          color: "#455a64",
+          fillColor: "#78909c",
+          fillOpacity: 0.6,
+          weight: 1
+        };
+      }
 socket.onmessage = async function (event) {
   const text = await event.data.text();
 
@@ -76,27 +118,34 @@ socket.onmessage = async function (event) {
       Last update: ${data.MetaData?.time_utc || "Unknown"}
     `;
 
-   if (shipMarkers[mmsi]) {
-    shipMarkers[mmsi]
-      .setLatLng([lat, lon])
-      .setPopupContent(popupContent);
-
-    shipTrails[mmsi].addLatLng([lat, lon]);
-
-  } else {
-    shipMarkers[mmsi] = L.circleMarker([lat, lon], {
-      radius: 6,
-      fillOpacity: 0.8,
-      weight: 1
-    })
-      .addTo(map)
-      .bindPopup(popupContent);
-  
-    shipTrails[mmsi] = L.polyline([[lat, lon]], {
-      weight: 2,
-      opacity: 0.6
-    }).addTo(map);
-  }
+     if (shipMarkers[mmsi]) {
+      shipMarkers[mmsi]
+        .setLatLng([lat, lon])
+        .setPopupContent(popupContent);
+    
+      shipTrailCoords[mmsi].push([lat, lon]);
+    
+      if (shipTrailCoords[mmsi].length > MAX_TRAIL_POINTS) {
+        shipTrailCoords[mmsi].shift();
+      }
+    
+      shipTrails[mmsi].setLatLngs(shipTrailCoords[mmsi]);
+    
+    } else {
+      const markerStyle = getMarkerStyle(data.MessageType);
+    
+      shipMarkers[mmsi] = L.circleMarker([lat, lon], markerStyle)
+        .addTo(map)
+        .bindPopup(popupContent);
+    
+      shipTrailCoords[mmsi] = [[lat, lon]];
+    
+      shipTrails[mmsi] = L.polyline(shipTrailCoords[mmsi], {
+        color: markerStyle.color,
+        weight: 2,
+        opacity: 0.6
+      }).addTo(map);
+    }
 
   } catch (err) {
     console.log("Could not parse JSON:", text);
