@@ -56,7 +56,9 @@ socket.onmessage = async function (event) {
 
   try {
     const data = JSON.parse(text);
-
+    
+        console.log("Full AIS message:", data);
+    
     const lat = data.MetaData?.latitude;
     const lon = data.MetaData?.longitude;
     const mmsi = data.MetaData?.MMSI;
