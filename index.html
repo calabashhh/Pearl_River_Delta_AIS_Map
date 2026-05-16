@@ -48,7 +48,8 @@
     console.log("Subscription sent:", subscriptionMessage);
   };
 
-const shipMarkers = {};
+    const shipMarkers = {};
+    const shipTrails = {};
     
 socket.onmessage = async function (event) {
   const text = await event.data.text();
@@ -60,8 +61,7 @@ socket.onmessage = async function (event) {
     const lon = data.MetaData?.longitude;
     const mmsi = data.MetaData?.MMSI;
     const shipName = data.MetaData?.ShipName?.trim() || "Unknown Ship";
-    const shipMarkers = {};
-    const shipTrails = {};
+
 
     if (lat === undefined || lon === undefined || mmsi === undefined) {
       return;
