@@ -22,19 +22,23 @@
       socket.send(JSON.stringify(subscriptionMessage));
     };
 
-    socket.onmessage = function (event) {
-  console.log("RAW MESSAGE:", event.data);
+socket.onmessage = async function (event) {
+
+  // Convert Blob into text
+  const text = await event.data.text();
+
+  console.log("RAW TEXT:", text);
 
   try {
-    const data = JSON.parse(event.data);
+    const data = JSON.parse(text);
 
-    console.log("PARSED:", data);
+    console.log("PARSED DATA:", data);
 
     document.getElementById("output").textContent =
       JSON.stringify(data, null, 2);
 
   } catch (err) {
-    console.log("Non-JSON message received:", event.data);
+    console.log("Could not parse JSON:", text);
   }
 };
 
