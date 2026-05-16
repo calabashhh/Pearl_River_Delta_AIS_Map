@@ -45,6 +45,7 @@
     };
 
     socket.send(JSON.stringify(subscriptionMessage));
+    console.log("Subscription sent:", subscriptionMessage);
   };
 
   socket.onmessage = async function (event) {
@@ -75,6 +76,9 @@
     } catch (err) {
       console.log("Could not parse JSON:", text);
     }
+  };
+  socket.onclose = function (event) {
+  console.log("WebSocket closed:", event);
   };
 
   socket.onerror = function (error) {
