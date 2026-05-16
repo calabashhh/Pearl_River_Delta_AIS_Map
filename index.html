@@ -24,68 +24,62 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   
   <script>
+  const map = L.map('map').setView([22.3, 114.15], 10);
 
-    const map = L.map('map').setView([22.3, 114.15], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-    
-    const API_KEY = "53b45131d4f4f35298c7df332904efd0df5847e5";
+  const API_KEY = "YOUR_API_KEY_HERE";
 
-    const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
+  const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
-    socket.onopen = function () {
-      document.getElementById("output").textContent = "Connected. Waiting for AIS messages...";
+  socket.onopen = function () {
+    console.log("Connected. Waiting for AIS messages...");
 
-      const subscriptionMessage = {
-        APIKey: API_KEY,
-        BoundingBoxes: [
-          [[21.0, 113.25], [22.6, 114.5]]
-        ]
-      };
-
-      socket.send(JSON.stringify(subscriptionMessage));
+    const subscriptionMessage = {
+      APIKey: API_KEY,
+      BoundingBoxes: [
+        [[21.0, 113.25], [22.6, 114.5]]
+      ]
     };
 
-socket.onmessage = async function (event) {
+    socket.send(JSON.stringify(subscriptionMessage));
+  };
 
-  // Convert Blob into text
-  const text = await event.data.text();
+  socket.onmessage = async function (event) {
+    const text = await event.data.text();
 
- console.log("Parsed AIS message:", data);
+    try {
+      const data = JSON.parse(text);
 
-const lat = data.MetaData?.latitude;
-const lon = data.MetaData?.longitude;
+      console.log("Parsed AIS message:", data);
 
-console.log("lat/lon:", lat, lon);
+      const lat = data.MetaData?.latitude;
+      const lon = data.MetaData?.longitude;
 
-const shipName = data.MetaData?.ShipName?.trim() || "Unknown Ship";
+      console.log("lat/lon:", lat, lon);
 
-if (lat !== undefined && lon !== undefined) {
-  L.marker([lat, lon])
-    .addTo(map)
-    .bindPopup(`
-      <b>${shipName}</b><br>
-      MMSI: ${data.MetaData.MMSI}<br>
-      Type: ${data.MessageType}
-    `);
-}
+      const shipName = data.MetaData?.ShipName?.trim() || "Unknown Ship";
 
-    
-    console.log("PARSED DATA:", data);
+      if (lat !== undefined && lon !== undefined) {
+        L.marker([lat, lon])
+          .addTo(map)
+          .bindPopup(`
+            <b>${shipName}</b><br>
+            MMSI: ${data.MetaData.MMSI}<br>
+            Type: ${data.MessageType}
+          `);
+      }
 
-    console.log("AIS data:", data);
+    } catch (err) {
+      console.log("Could not parse JSON:", text);
+    }
+  };
 
-  } catch (err) {
-    console.log("Could not parse JSON:", text);
-  }
-};
-
-    socket.onerror = function (error) {
-      console.error("WebSocket error:", error);
-      
-    };
-  </script>
+  socket.onerror = function (error) {
+    console.error("WebSocket error:", error);
+  };
+</script>
 </body>
 </html>
