@@ -23,11 +23,20 @@
     };
 
     socket.onmessage = function (event) {
-      const data = JSON.parse(event.data);
-      console.log(data);
-      document.getElementById("output").textContent =
-        JSON.stringify(data, null, 2);
-    };
+  console.log("RAW MESSAGE:", event.data);
+
+  try {
+    const data = JSON.parse(event.data);
+
+    console.log("PARSED:", data);
+
+    document.getElementById("output").textContent =
+      JSON.stringify(data, null, 2);
+
+  } catch (err) {
+    console.log("Non-JSON message received:", event.data);
+  }
+};
 
     socket.onerror = function (error) {
       console.error("WebSocket error:", error);
