@@ -272,6 +272,11 @@ socket.onmessage = async function (event) {
 
     const vessel = normalizeAISMessage(data);
 
+      console.log("Movement fields:", {
+        messageType: vessel.messageType,
+        rawMessage: vessel.raw.Message
+      });
+
     if (data.MessageType === "PositionReport") positionCount++;
     if (data.MessageType === "StandardClassBPositionReport") classBCount++;
     if (data.MessageType === "ShipStaticData") staticCount++;
