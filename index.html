@@ -22,6 +22,11 @@
   Static data reports: <span id="staticCount">0</span>
 </div>
 
+<div id="shipList">
+  <b>Active Vessels</b>
+  <div id="shipRows"></div>
+</div>
+
 <div id="legend">
   <b>Vessel Message Types</b><br>
   <span class="legend-dot position"></span> Position Report<br>
@@ -51,7 +56,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   }
 
-    #legend {
+  #legend {
     position: absolute;
     bottom: 30px;
     right: 20px;
@@ -85,17 +90,38 @@
   }
 
   #connectionStatus {
-  position: absolute;
-  top: 70px;
-  left: 60px;
-  z-index: 1000;
-  background: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-}
+    position: absolute;
+    top: 70px;
+    left: 60px;
+    z-index: 1000;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+
+  #shipList {
+    position: absolute;
+    top: 220px;
+    right: 20px;
+    width: 230px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  
+  .ship-row {
+    border-top: 1px solid #ddd;
+    padding: 6px 0;
+  }
   
 </style>
 
@@ -125,7 +151,9 @@
     socket.send(JSON.stringify(subscriptionMessage));
   };
 
+    
     const shipMarkers = {};
+    const shipInfo = {};
     const shipTrails = {};
     const shipTrailCoords = {};
     const MAX_TRAIL_POINTS = 25;
@@ -208,6 +236,24 @@ socket.onmessage = async function (event) {
     const mmsi = vessel.mmsi;
     const shipName = vessel.shipName;
 
+    shipInfo[mmsi] = {
+      name: shipName,
+      type: vessel.messageType,
+      time: vessel.time || "Unknown"
+    };
+    
+    const rowsHtml = Object.entries(shipInfo)
+      .slice(-20)
+      .map(([id, info]) => `
+        <div class="ship-row">
+          <b>${info.name}</b><br>
+          MMSI: ${id}<br>
+          ${info.type}
+        </div>
+      `)
+      .join("");
+    
+    document.getElementById("shipRows").innerHTML = rowsHtml;
 
     if (lat === undefined || lon === undefined || mmsi === undefined) {
       return;
