@@ -34,6 +34,12 @@
   <span class="legend-dot static"></span> Static Ship Data
 </div>
 
+<div id="filters">
+  <b>Filters</b><br>
+  <label><input type="checkbox" id="filterPosition" checked> Position Reports</label><br>
+  <label><input type="checkbox" id="filterClassB" checked> Class B Reports</label><br>
+  <label><input type="checkbox" id="filterStatic" checked> Static Data</label>
+</div>
   
 <div id="map"></div>
 
@@ -127,7 +133,19 @@
   .ship-row:hover {
     background: #f3f3f3;
   }
-  
+
+  #filters {
+    position: absolute;
+    bottom: 160px;
+    right: 20px;
+    z-index: 1000;
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
 </style>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -229,6 +247,22 @@
       map.setView(marker.getLatLng(), 14);
       marker.openPopup();
     }
+
+    function isTypeVisible(messageType) {
+      if (messageType === "PositionReport") {
+        return document.getElementById("filterPosition").checked;
+      }
+    
+      if (messageType === "StandardClassBPositionReport") {
+        return document.getElementById("filterClassB").checked;
+      }
+    
+      if (messageType === "ShipStaticData") {
+        return document.getElementById("filterStatic").checked;
+      }
+    
+      return true;
+    }
         
 socket.onmessage = async function (event) {
   const text = await event.data.text();
@@ -252,6 +286,9 @@ socket.onmessage = async function (event) {
     const lon = vessel.lon;
     const mmsi = vessel.mmsi;
     const shipName = vessel.shipName;
+      if (!isTypeVisible(vessel.messageType)) {
+        return;
+      }
 
     shipInfo[mmsi] = {
       name: shipName,
