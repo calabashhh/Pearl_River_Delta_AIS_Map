@@ -239,6 +239,19 @@ socket.onmessage = async function (event) {
       shipMarkers[mmsi] = L.circleMarker([lat, lon], markerStyle)
         .addTo(map)
         .bindPopup(popupContent);
+      
+      shipMarkers[mmsi].on("mouseover", function () {
+        this.setStyle({
+          radius: markerStyle.radius + 3,
+          weight: 3
+        });
+        this.openPopup();
+      });
+      
+      shipMarkers[mmsi].on("mouseout", function () {
+        this.setStyle(markerStyle);
+        this.closePopup();
+      });
     
       shipTrailCoords[mmsi] = [[lat, lon]];
     
