@@ -137,55 +137,56 @@
     function getMarkerStyle(messageType) {
 
     function normalizeAISMessage(data) {
+      return {
+        lat: data.MetaData?.latitude,
+        lon: data.MetaData?.longitude,
+        mmsi: data.MetaData?.MMSI,
+        shipName: data.MetaData?.ShipName?.trim() || "Unknown Ship",
+        messageType: data.MessageType,
+        time: data.MetaData?.time_utc,
+        raw: data
+      };
+    }
+    
+    function getMarkerStyle(messageType) {
+      if (messageType === "PositionReport") {
         return {
-          lat: data.MetaData?.latitude,
-          lon: data.MetaData?.longitude,
-          mmsi: data.MetaData?.MMSI,
-          shipName: data.MetaData?.ShipName?.trim() || "Unknown Ship",
-          messageType: data.MessageType,
-          time: data.MetaData?.time_utc,
-          raw: data
-        };
-      }
-
-        if (messageType === "PositionReport") {
-          return {
-            radius: 7,
-            color: "#1565c0",
-            fillColor: "#1e88e5",
-            fillOpacity: 0.85,
-            weight: 1
-          };
-        }
-      
-        if (messageType === "StandardClassBPositionReport") {
-          return {
-            radius: 5,
-            color: "#ef6c00",
-            fillColor: "#fb8c00",
-            fillOpacity: 0.8,
-            weight: 1
-          };
-        }
-      
-        if (messageType === "ShipStaticData") {
-          return {
-            radius: 4,
-            color: "#6a1b9a",
-            fillColor: "#8e24aa",
-            fillOpacity: 0.7,
-            weight: 1
-          };
-        }
-      
-        return {
-          radius: 4,
-          color: "#455a64",
-          fillColor: "#78909c",
-          fillOpacity: 0.6,
+          radius: 7,
+          color: "#1565c0",
+          fillColor: "#1e88e5",
+          fillOpacity: 0.85,
           weight: 1
         };
       }
+    
+      if (messageType === "StandardClassBPositionReport") {
+        return {
+          radius: 5,
+          color: "#ef6c00",
+          fillColor: "#fb8c00",
+          fillOpacity: 0.8,
+          weight: 1
+        };
+      }
+    
+      if (messageType === "ShipStaticData") {
+        return {
+          radius: 4,
+          color: "#6a1b9a",
+          fillColor: "#8e24aa",
+          fillOpacity: 0.7,
+          weight: 1
+        };
+      }
+    
+      return {
+        radius: 4,
+        color: "#455a64",
+        fillColor: "#78909c",
+        fillOpacity: 0.6,
+        weight: 1
+      };
+    }
 socket.onmessage = async function (event) {
   const text = await event.data.text();
 
