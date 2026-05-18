@@ -81,6 +81,18 @@
 
     function getMarkerStyle(messageType) {
 
+    function normalizeAISMessage(data) {
+        return {
+          lat: data.MetaData?.latitude,
+          lon: data.MetaData?.longitude,
+          mmsi: data.MetaData?.MMSI,
+          shipName: data.MetaData?.ShipName?.trim() || "Unknown Ship",
+          messageType: data.MessageType,
+          time: data.MetaData?.time_utc,
+          raw: data
+        };
+      }
+
         if (messageType === "PositionReport") {
           return {
             radius: 7,
@@ -125,6 +137,8 @@ socket.onmessage = async function (event) {
   try {
     const data = JSON.parse(text);
 
+    const vessel = normalizeAISMessage(data);
+
     if (data.MessageType === "PositionReport") positionCount++;
     if (data.MessageType === "StandardClassBPositionReport") classBCount++;
     if (data.MessageType === "ShipStaticData") staticCount++;
@@ -138,10 +152,10 @@ socket.onmessage = async function (event) {
     
    //     console.log("Full AIS message:", data);
     
-    const lat = data.MetaData?.latitude;
-    const lon = data.MetaData?.longitude;
-    const mmsi = data.MetaData?.MMSI;
-    const shipName = data.MetaData?.ShipName?.trim() || "Unknown Ship";
+    const lat = vessel.lat;
+    const lon = vessel.lon;
+    const mmsi = vessel.mmsi;
+    const shipName = vessel.shipName;
 
 
     if (lat === undefined || lon === undefined || mmsi === undefined) {
@@ -151,8 +165,8 @@ socket.onmessage = async function (event) {
     const popupContent = `
       <b>${shipName}</b><br>
       MMSI: ${mmsi}<br>
-      Type: ${data.MessageType}<br>
-      Last update: ${data.MetaData?.time_utc || "Unknown"}
+      Type: ${vessel.messageType}<br>
+      Last update: ${vessel.time || "Unknown"}
     `;
 
      if (shipMarkers[mmsi]) {
@@ -169,7 +183,7 @@ socket.onmessage = async function (event) {
       shipTrails[mmsi].setLatLngs(shipTrailCoords[mmsi]);
     
     } else {
-      const markerStyle = getMarkerStyle(data.MessageType);
+      const markerStyle = getMarkerStyle(vessel.messageType);
     
       shipMarkers[mmsi] = L.circleMarker([lat, lon], markerStyle)
         .addTo(map)
