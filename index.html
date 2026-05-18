@@ -12,6 +12,8 @@
 
 <h1>Pearl River Delta AIS Map</h1>
 
+<div id="connectionStatus">Connecting to AIS feed...</div>
+  
 <div id="stats">
   <b>Live AIS Dashboard</b><br>
   Active vessels: <span id="activeCount">0</span><br>
@@ -81,6 +83,20 @@
   .static {
     background: #8e24aa;
   }
+
+  #connectionStatus {
+  position: absolute;
+  top: 70px;
+  left: 60px;
+  z-index: 1000;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+  
 </style>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -97,17 +113,16 @@
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
   socket.onopen = function () {
-    console.log("Connected. Waiting for AIS messages...");
-
+    document.getElementById("connectionStatus").textContent = "Connected to AIS feed";
+  
     const subscriptionMessage = {
       APIKey: API_KEY,
       BoundingBoxes: [
-        [[21.7, 113.0], [23.0, 115.0]]
+        [[21.9, 113.25], [22.6, 114.7]]
       ]
     };
-
-  socket.send(JSON.stringify(subscriptionMessage));
-  console.log("Subscription sent:", subscriptionMessage);
+  
+    socket.send(JSON.stringify(subscriptionMessage));
   };
 
     const shipMarkers = {};
@@ -242,11 +257,13 @@ socket.onmessage = async function (event) {
     console.log("Could not parse JSON:", text);
   }
 };
-  socket.onclose = function (event) {
-  console.log("WebSocket closed:", event);
+    socket.onclose = function (event) {
+    document.getElementById("connectionStatus").textContent = "AIS feed disconnected";
+    console.log("WebSocket closed:", event);
   };
-
+  
   socket.onerror = function (error) {
+    document.getElementById("connectionStatus").textContent = "AIS feed error";
     console.error("WebSocket error:", error);
   };
 </script>
