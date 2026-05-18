@@ -196,9 +196,6 @@ socket.onmessage = async function (event) {
     if (data.MessageType === "PositionReport") positionCount++;
     if (data.MessageType === "StandardClassBPositionReport") classBCount++;
     if (data.MessageType === "ShipStaticData") staticCount++;
-
-    document.getElementById("activeCount").textContent =
-      Object.keys(shipMarkers).length;
   
     document.getElementById("positionCount").textContent = positionCount;
     document.getElementById("classBCount").textContent = classBCount;
@@ -252,6 +249,9 @@ socket.onmessage = async function (event) {
       }).addTo(map);
     }
 
+    document.getElementById("activeCount").textContent =
+      Object.keys(shipMarkers).length;
+    
   } catch (err) {
     console.log("Could not parse JSON:", text);
   }
