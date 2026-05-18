@@ -19,6 +19,14 @@
   Class B reports: <span id="classBCount">0</span><br>
   Static data reports: <span id="staticCount">0</span>
 </div>
+
+<div id="legend">
+  <b>Vessel Message Types</b><br>
+  <span class="legend-dot position"></span> Position Report<br>
+  <span class="legend-dot classb"></span> Class B Position<br>
+  <span class="legend-dot static"></span> Static Ship Data
+</div>
+
   
 <div id="map"></div>
 
@@ -40,7 +48,39 @@
     font-size: 14px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   }
+
+    #legend {
+    position: absolute;
+    bottom: 30px;
+    right: 20px;
+    z-index: 1000;
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
   
+  .legend-dot {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  
+  .position {
+    background: #1e88e5;
+  }
+  
+  .classb {
+    background: #fb8c00;
+  }
+  
+  .static {
+    background: #8e24aa;
+  }
 </style>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
