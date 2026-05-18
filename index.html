@@ -121,6 +121,11 @@
   .ship-row {
     border-top: 1px solid #ddd;
     padding: 6px 0;
+    cursor: pointer;
+  }
+  
+  .ship-row:hover {
+    background: #f3f3f3;
   }
   
 </style>
@@ -213,6 +218,18 @@
         weight: 1
       };
     }
+
+    function focusShip(mmsi) {
+      const marker = shipMarkers[mmsi];
+    
+      if (!marker) {
+        return;
+      }
+    
+      map.setView(marker.getLatLng(), 14);
+      marker.openPopup();
+    }
+        
 socket.onmessage = async function (event) {
   const text = await event.data.text();
 
@@ -245,7 +262,7 @@ socket.onmessage = async function (event) {
     const rowsHtml = Object.entries(shipInfo)
       .slice(-20)
       .map(([id, info]) => `
-        <div class="ship-row">
+        <div class="ship-row" onclick="focusShip('${id}')">
           <b>${info.name}</b><br>
           MMSI: ${id}<br>
           ${info.type}
