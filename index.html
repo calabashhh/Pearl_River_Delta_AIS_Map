@@ -179,6 +179,7 @@
     const shipInfo = {};
     const shipTrails = {};
     const shipTrailCoords = {};
+    const shipDirectionLines = {};
     const MAX_TRAIL_POINTS = 25;
 
     let positionCount = 0;
@@ -268,6 +269,33 @@
       }
     
       return true;
+    }
+
+    function getDirectionLine(lat, lon, cog, lengthKm = 0.3) {
+      if (cog === undefined || cog === null) {
+        return null;
+      }
+    
+      const earthRadiusKm = 6371;
+      const bearing = cog * Math.PI / 180;
+      const lat1 = lat * Math.PI / 180;
+      const lon1 = lon * Math.PI / 180;
+      const distance = lengthKm / earthRadiusKm;
+    
+      const lat2 = Math.asin(
+        Math.sin(lat1) * Math.cos(distance) +
+        Math.cos(lat1) * Math.sin(distance) * Math.cos(bearing)
+      );
+    
+      const lon2 = lon1 + Math.atan2(
+        Math.sin(bearing) * Math.sin(distance) * Math.cos(lat1),
+        Math.cos(distance) - Math.sin(lat1) * Math.sin(lat2)
+      );
+    
+      return [
+        [lat, lon],
+        [lat2 * 180 / Math.PI, lon2 * 180 / Math.PI]
+      ];
     }
         
 socket.onmessage = async function (event) {
@@ -374,6 +402,19 @@ socket.onmessage = async function (event) {
         opacity: 0.6
       }).addTo(map);
     }
+      const directionCoords = getDirectionLine(
+        lat,
+        lon,
+        vessel.cog
+      );
+      
+      if (directionCoords) {
+        shipDirectionLines[mmsi] = L.polyline(directionCoords, {
+          color: markerStyle.color,
+          weight: 3,
+          opacity: 0.9
+        }).addTo(map);
+      }
 
     document.getElementById("activeCount").textContent =
       Object.keys(shipMarkers).length;
