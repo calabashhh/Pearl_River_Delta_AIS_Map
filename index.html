@@ -193,7 +193,13 @@
         shipName: data.MetaData?.ShipName?.trim() || "Unknown Ship",
         messageType: data.MessageType,
         time: data.MetaData?.time_utc,
-        raw: data
+        raw: data,
+        sog: data.Message?.PositionReport?.Sog 
+          ?? data.Message?.StandardClassBPositionReport?.Sog,
+      cog: data.Message?.PositionReport?.Cog 
+          ?? data.Message?.StandardClassBPositionReport?.Cog,
+      heading: data.Message?.PositionReport?.TrueHeading 
+          ?? data.Message?.StandardClassBPositionReport?.TrueHeading,
       };
     }
     
@@ -322,6 +328,8 @@ socket.onmessage = async function (event) {
       <b>${shipName}</b><br>
       MMSI: ${mmsi}<br>
       Type: ${vessel.messageType}<br>
+      Speed: ${vessel.sog ?? "Unknown"} knots<br>
+      Course: ${vessel.cog ?? "Unknown"}°<br>
       Last update: ${vessel.time || "Unknown"}
     `;
 
