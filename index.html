@@ -407,11 +407,12 @@ socket.onmessage = async function (event) {
       Last update: ${vessel.time || "Unknown"}
     `;
 
-    animateMarker(shipMarkers[mmsi], [lat, lon], 1000);
-
-    shipMarkers[mmsi]
-      .setIcon(createShipIcon(getMarkerStyle(vessel.messageType).color, vessel.cog))
-      .setPopupContent(popupContent);
+    if (shipMarkers[mmsi]) {
+      animateMarker(shipMarkers[mmsi], [lat, lon], 1000);
+    
+      shipMarkers[mmsi]
+        .setIcon(createShipIcon(getMarkerStyle(vessel.messageType).color, vessel.cog))
+        .setPopupContent(popupContent);
     
       shipTrailCoords[mmsi].push([lat, lon]);
     
@@ -429,19 +430,6 @@ socket.onmessage = async function (event) {
       })
         .addTo(map)
         .bindPopup(popupContent);
-      
-      shipMarkers[mmsi].on("mouseover", function () {
-        this.setStyle({
-          radius: markerStyle.radius + 3,
-          weight: 3
-        });
-        this.openPopup();
-      });
-      
-      shipMarkers[mmsi].on("mouseout", function () {
-        this.setStyle(markerStyle);
-        this.closePopup();
-      });
     
       shipTrailCoords[mmsi] = [[lat, lon]];
     
