@@ -402,20 +402,21 @@ socket.onmessage = async function (event) {
         opacity: 0.6
       }).addTo(map);
     }
-      const directionCoords = getDirectionLine(
-        lat,
-        lon,
-        vessel.cog
-      );
-      
-      if (directionCoords) {
+      const directionCoords = getDirectionLine(lat, lon, vessel.cog);
+
+    if (directionCoords) {
+      const markerStyle = getMarkerStyle(vessel.messageType);
+    
+      if (shipDirectionLines[mmsi]) {
+        shipDirectionLines[mmsi].setLatLngs(directionCoords);
+      } else {
         shipDirectionLines[mmsi] = L.polyline(directionCoords, {
           color: markerStyle.color,
           weight: 3,
           opacity: 0.9
         }).addTo(map);
       }
-
+    }
     document.getElementById("activeCount").textContent =
       Object.keys(shipMarkers).length;
     
