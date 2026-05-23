@@ -160,6 +160,10 @@
     }
   ).addTo(map);
 
+    L.marker([22.3, 114.15], {
+  icon: createShipIcon("#1e88e5", 90)
+}).addTo(map);
+
   const API_KEY = "53b45131d4f4f35298c7df332904efd0df5847e5";
 
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
@@ -300,7 +304,26 @@
         [lat2 * 180 / Math.PI, lon2 * 180 / Math.PI]
       ];
     }
-        
+
+    function createShipIcon(color, cog) {
+      const rotation = cog ?? 0;
+    
+      return L.divIcon({
+        className: "ship-icon",
+        html: `
+          <div style="
+            transform: rotate(${rotation}deg);
+            color: ${color};
+            font-size: 18px;
+            line-height: 18px;
+          ">▲</div>
+        `,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+      });
+    }
+
+    
 socket.onmessage = async function (event) {
   const text = await event.data.text();
 
