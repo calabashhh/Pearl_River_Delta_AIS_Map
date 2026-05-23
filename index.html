@@ -323,6 +323,26 @@
       });
     }
 
+    function animateMarker(marker, newLatLng, duration = 1000) {
+      const startLatLng = marker.getLatLng();
+      const startTime = performance.now();
+    
+      function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const t = Math.min(elapsed / duration, 1);
+    
+        const lat = startLatLng.lat + (newLatLng[0] - startLatLng.lat) * t;
+        const lon = startLatLng.lng + (newLatLng[1] - startLatLng.lng) * t;
+    
+        marker.setLatLng([lat, lon]);
+    
+        if (t < 1) {
+          requestAnimationFrame(step);
+        }
+      }
+    
+      requestAnimationFrame(step);
+    }
     
 socket.onmessage = async function (event) {
   const text = await event.data.text();
@@ -387,11 +407,11 @@ socket.onmessage = async function (event) {
       Last update: ${vessel.time || "Unknown"}
     `;
 
-     if (shipMarkers[mmsi]) {
-      shipMarkers[mmsi]
-        .setLatLng([lat, lon])
-        .setIcon(createShipIcon(getMarkerStyle(vessel.messageType).color, vessel.cog))
-        .setPopupContent(popupContent);
+    animateMarker(shipMarkers[mmsi], [lat, lon], 1000);
+
+    shipMarkers[mmsi]
+      .setIcon(createShipIcon(getMarkerStyle(vessel.messageType).color, vessel.cog))
+      .setPopupContent(popupContent);
     
       shipTrailCoords[mmsi].push([lat, lon]);
     
