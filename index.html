@@ -183,7 +183,7 @@
     const shipInfo = {};
     const shipTrails = {};
     const shipTrailCoords = {};
-    const shipDirectionLines = {};
+    //const shipDirectionLines = {};
     const MAX_TRAIL_POINTS = 25;
 
     let positionCount = 0;
@@ -201,9 +201,9 @@
         raw: data,
         sog: data.Message?.PositionReport?.Sog 
           ?? data.Message?.StandardClassBPositionReport?.Sog,
-      cog: data.Message?.PositionReport?.Cog 
+        cog: data.Message?.PositionReport?.Cog 
           ?? data.Message?.StandardClassBPositionReport?.Cog,
-      heading: data.Message?.PositionReport?.TrueHeading 
+        heading: data.Message?.PositionReport?.TrueHeading 
           ?? data.Message?.StandardClassBPositionReport?.TrueHeading,
       };
     }
@@ -309,14 +309,17 @@
         className: "ship-icon",
         html: `
           <div style="
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 22px solid ${color};
             transform: rotate(${rotation}deg);
-            color: ${color};
-            font-size: 18px;
-            line-height: 18px;
-          ">▲</div>
+            transform-origin: center center;
+          "></div>
         `,
-        iconSize: [18, 18],
-        iconAnchor: [9, 9]
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
       });
     }
 
@@ -428,21 +431,21 @@ socket.onmessage = async function (event) {
         opacity: 0.6
       }).addTo(map);
     }
-      const directionCoords = getDirectionLine(lat, lon, vessel.cog);
+    /*  const directionCoords = getDirectionLine(lat, lon, vessel.cog);
 
-    if (directionCoords) {
-      const markerStyle = getMarkerStyle(vessel.messageType);
-    
-      if (shipDirectionLines[mmsi]) {
-        shipDirectionLines[mmsi].setLatLngs(directionCoords);
-      } else {
-        shipDirectionLines[mmsi] = L.polyline(directionCoords, {
-          color: markerStyle.color,
-          weight: 3,
-          opacity: 0.9
-        }).addTo(map);
-      }
-    }
+      if (directionCoords) {
+        const markerStyle = getMarkerStyle(vessel.messageType);
+      
+        if (shipDirectionLines[mmsi]) {
+          shipDirectionLines[mmsi].setLatLngs(directionCoords);
+        } else {
+          shipDirectionLines[mmsi] = L.polyline(directionCoords, {
+            color: markerStyle.color,
+            weight: 3,
+            opacity: 0.9
+          }).addTo(map);
+        }
+      }*/
     document.getElementById("activeCount").textContent =
       Object.keys(shipMarkers).length;
     
