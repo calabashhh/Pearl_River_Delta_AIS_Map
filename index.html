@@ -160,9 +160,6 @@
     }
   ).addTo(map);
 
-    L.marker([22.3, 114.15], {
-  icon: createShipIcon("#1e88e5", 90)
-}).addTo(map);
 
   const API_KEY = "53b45131d4f4f35298c7df332904efd0df5847e5";
 
@@ -390,6 +387,7 @@ socket.onmessage = async function (event) {
      if (shipMarkers[mmsi]) {
       shipMarkers[mmsi]
         .setLatLng([lat, lon])
+        .setIcon(createShipIcon(getMarkerStyle(vessel.messageType).color, vessel.cog))
         .setPopupContent(popupContent);
     
       shipTrailCoords[mmsi].push([lat, lon]);
@@ -403,7 +401,9 @@ socket.onmessage = async function (event) {
     } else {
       const markerStyle = getMarkerStyle(vessel.messageType);
     
-      shipMarkers[mmsi] = L.circleMarker([lat, lon], markerStyle)
+      shipMarkers[mmsi] = L.marker([lat, lon], {
+        icon: createShipIcon(markerStyle.color, vessel.cog)
+      })
         .addTo(map)
         .bindPopup(popupContent);
       
