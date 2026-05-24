@@ -275,10 +275,10 @@
       return true;
     }
 
-    function getDirectionLine(lat, lon, cog, lengthKm = 0.3) {
+ /*   function getDirectionLine(lat, lon, cog, lengthKm = 0.3) {
       if (cog === undefined || cog === null) {
         return null;
-      }
+      }*/
     
       const earthRadiusKm = 6371;
       const bearing = cog * Math.PI / 180;
@@ -366,10 +366,10 @@ socket.onmessage = async function (event) {
 
     const vessel = normalizeAISMessage(data);
 
-      console.log("Movement fields:", {
+ /*     console.log("Movement fields:", {
         messageType: vessel.messageType,
         rawMessage: vessel.raw.Message
-      });
+      }); */
 
     if (data.MessageType === "PositionReport") positionCount++;
     if (data.MessageType === "StandardClassBPositionReport") classBCount++;
@@ -477,21 +477,7 @@ socket.onmessage = async function (event) {
         opacity: 0.6
       }).addTo(map);
     }
-    /*  const directionCoords = getDirectionLine(lat, lon, vessel.cog);
-
-      if (directionCoords) {
-        const markerStyle = getMarkerStyle(vessel.messageType);
-      
-        if (shipDirectionLines[mmsi]) {
-          shipDirectionLines[mmsi].setLatLngs(directionCoords);
-        } else {
-          shipDirectionLines[mmsi] = L.polyline(directionCoords, {
-            color: markerStyle.color,
-            weight: 3,
-            opacity: 0.9
-          }).addTo(map);
-        }
-      }*/
+  
     document.getElementById("activeCount").textContent =
       Object.keys(shipMarkers).length;
     
