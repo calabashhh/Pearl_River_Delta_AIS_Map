@@ -189,6 +189,7 @@
     let positionCount = 0;
     let classBCount = 0;
     let staticCount = 0;
+    let selectedMMSI = null;
 
     function normalizeAISMessage(data) {
       return {
@@ -255,6 +256,20 @@
         return;
       }
     
+      map.setView(marker.getLatLng(), 14);
+      marker.openPopup();
+    }
+
+    function selectShip(mmsi) {
+      selectedMMSI = mmsi;
+    
+      const marker = shipMarkers[mmsi];
+      if (!marker) return;
+    
+      const info = shipInfo[mmsi];
+      const style = getMarkerStyle(info.type);
+    
+      marker.setIcon(createShipIcon(style.color, 0, 38));
       map.setView(marker.getLatLng(), 14);
       marker.openPopup();
     }
@@ -398,7 +413,7 @@ socket.onmessage = async function (event) {
     const rowsHtml = Object.entries(shipInfo)
       .slice(-20)
       .map(([id, info]) => `
-        <div class="ship-row" onclick="focusShip('${id}')">
+        <div class="ship-row" onclick="selectShip('${id}')">
           <b>${info.name}</b><br>
           MMSI: ${id}<br>
           ${info.type}
