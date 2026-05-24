@@ -269,7 +269,7 @@
       const info = shipInfo[mmsi];
       const style = getMarkerStyle(info.type);
     
-      marker.setIcon(createShipIcon(style.color, 0, 38));
+      marker.setIcon(createShipIcon(style.color, info.cog, 38));
       map.setView(marker.getLatLng(), 14);
       marker.openPopup();
     }
@@ -407,7 +407,8 @@ socket.onmessage = async function (event) {
     shipInfo[mmsi] = {
       name: shipName,
       type: vessel.messageType,
-      time: vessel.time || "Unknown"
+      time: vessel.time || "Unknown",
+      cog: vessel.cog
     };
     
     const rowsHtml = Object.entries(shipInfo)
