@@ -302,7 +302,7 @@
       ];
     }
 
-    function createShipIcon(color, cog) {
+    function createShipIcon(color, cog, size = 22) {
       const rotation = cog ?? 0;
     
       return L.divIcon({
@@ -311,15 +311,15 @@
           <div style="
             width: 0;
             height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-bottom: 22px solid ${color};
+            border-left: ${size * 0.3}px solid transparent;
+            border-right: ${size * 0.3}px solid transparent;
+            border-bottom: ${size}px solid ${color};
             transform: rotate(${rotation}deg);
             transform-origin: center center;
           "></div>
         `,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2]
       });
     }
 
@@ -430,6 +430,30 @@ socket.onmessage = async function (event) {
       })
         .addTo(map)
         .bindPopup(popupContent);
+
+      shipMarkers[mmsi].on("mouseover", function () {
+        this.setIcon(
+          createShipIcon(
+            markerStyle.color,
+            vessel.cog,
+            30
+          )
+        );
+      
+        this.openPopup();
+      });
+      
+      shipMarkers[mmsi].on("mouseout", function () {
+        this.setIcon(
+          createShipIcon(
+            markerStyle.color,
+            vessel.cog,
+            22
+          )
+        );
+      
+        this.closePopup();
+      });
     
       shipTrailCoords[mmsi] = [[lat, lon]];
     
