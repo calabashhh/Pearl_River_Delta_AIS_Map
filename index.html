@@ -20,6 +20,8 @@
   Position reports: <span id="positionCount">0</span><br>
   Class B reports: <span id="classBCount">0</span><br>
   Static data reports: <span id="staticCount">0</span>
+  Last message: <span id="lastMessageTime">Waiting...</span>
+  <button id="pauseButton" onclick="togglePause()">Pause</button>
 </div>
 
 <div id="shipList">
@@ -203,6 +205,7 @@
     let classBCount = 0;
     let staticCount = 0;
     let selectedMMSI = null;
+    let isPaused = false;
 
     function normalizeAISMessage(data) {
       return {
@@ -385,12 +388,24 @@
     
       requestAnimationFrame(step);
     }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      document.getElementById("pauseButton").textContent =
+        isPaused ? "Resume" : "Pause";
+    }
     
 socket.onmessage = async function (event) {
   const text = await event.data.text();
 
   try {
     const data = JSON.parse(text);
+      if (isPaused) {
+        return;
+      }
+
+    document.getElementById("lastMessageTime").textContent =
+      new Date().toLocaleTimeString();
 
     const vessel = normalizeAISMessage(data);
 
