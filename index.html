@@ -19,9 +19,10 @@
   Active vessels: <span id="activeCount">0</span><br>
   Position reports: <span id="positionCount">0</span><br>
   Class B reports: <span id="classBCount">0</span><br>
-  Static data reports: <span id="staticCount">0</span>
-  Last message: <span id="lastMessageTime">Waiting...</span>
+  Static data reports: <span id="staticCount">0</span><br>
+  Last message: <span id="lastMessageTime">Waiting...</span><br>
   <button id="pauseButton" onclick="togglePause()">Pause</button>
+  <button onclick="downloadAISData()">Download Data</button>
 </div>
 
 <div id="shipList">
@@ -200,6 +201,7 @@
     const shipTrailCoords = {};
     //const shipDirectionLines = {};
     const MAX_TRAIL_POINTS = 25;
+    const capturedAIS = [];
 
     let positionCount = 0;
     let classBCount = 0;
@@ -394,6 +396,22 @@
       document.getElementById("pauseButton").textContent =
         isPaused ? "Resume" : "Pause";
     }
+
+    function downloadAISData() {
+      const blob = new Blob(
+        [JSON.stringify(capturedAIS, null, 2)],
+        { type: "application/json" }
+      );
+    
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+    
+      link.href = url;
+      link.download = "ais_capture.json";
+      link.click();
+    
+      URL.revokeObjectURL(url);
+    }
     
 socket.onmessage = async function (event) {
   const text = await event.data.text();
@@ -408,6 +426,7 @@ socket.onmessage = async function (event) {
       new Date().toLocaleTimeString();
 
     const vessel = normalizeAISMessage(data);
+      capturedAIS.push(vessel);
 
  /*     console.log("Movement fields:", {
         messageType: vessel.messageType,
