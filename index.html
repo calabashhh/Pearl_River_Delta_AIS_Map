@@ -440,8 +440,10 @@ socket.onmessage = async function (event) {
     if (shipMarkers[mmsi]) {
       animateMarker(shipMarkers[mmsi], [lat, lon], 1000);
     
+      const iconSize = selectedMMSI === mmsi ? 38 : 26;
+      
       shipMarkers[mmsi]
-        .setIcon(createShipIcon(getMarkerStyle(vessel.messageType).color, vessel.cog))
+        .setIcon(createShipIcon(getMarkerStyle(vessel.messageType).color, vessel.cog, iconSize))
         .setPopupContent(popupContent);
     
       shipTrailCoords[mmsi].push([lat, lon]);
