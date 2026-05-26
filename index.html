@@ -24,6 +24,7 @@
 
 <div id="shipList">
   <b>Active Vessels</b>
+  <input id="shipSearch" placeholder="Search vessel or MMSI..." />
   <div id="shipRows"></div>
 </div>
 
@@ -123,6 +124,13 @@
     font-size: 13px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   }
+
+  #shipSearch {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 8px 0;
+    padding: 6px;
+  }
   
   .ship-row {
     border-top: 1px solid #ddd;
@@ -134,6 +142,11 @@
     background: #f3f3f3;
   }
 
+  .ship-row.selected {
+    background: #dbeafe;
+    font-weight: bold;
+  }
+  
   #filters {
     position: absolute;
     bottom: 160px;
@@ -411,10 +424,16 @@ socket.onmessage = async function (event) {
       cog: vessel.cog
     };
     
+    const searchText = document.getElementById("shipSearch").value.toLowerCase();
+
     const rowsHtml = Object.entries(shipInfo)
+      .filter(([id, info]) =>
+        id.includes(searchText) ||
+        info.name.toLowerCase().includes(searchText)
+      )
       .slice(-20)
       .map(([id, info]) => `
-        <div class="ship-row" onclick="selectShip('${id}')">
+        <div class="ship-row ${selectedMMSI === id ? 'selected' : ''}" onclick="selectShip('${id}')">
           <b>${info.name}</b><br>
           MMSI: ${id}<br>
           ${info.type}
@@ -483,6 +502,10 @@ socket.onmessage = async function (event) {
             22
           )
         );
+
+      shipMarkers[mmsi].on("click", function () {
+        selectShip(mmsi);
+      });
       
         this.closePopup();
       });
