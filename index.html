@@ -24,6 +24,7 @@
   <button id="pauseButton" onclick="togglePause()">Pause</button>
   <button onclick="downloadAISData()">Download Data</button><br>
   <button onclick="downloadGeoJSON()">Download GeoJSON</button><br>
+  <button onclick="downloadTrailGeoJSON()">Download Trails</button>
   <button onclick="clearCapturedData()">Clear Data</button>
 </div>
 
@@ -458,6 +459,43 @@
     function clearCapturedData() {
       capturedAIS.length = 0;
       alert("Captured AIS data cleared.");
+    }
+
+    function downloadTrailGeoJSON() {
+      const features = Object.entries(shipTrailCoords)
+        .filter(([mmsi, coords]) => coords.length > 1)
+        .map(([mmsi, coords]) => ({
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: coords.map(([lat, lon]) => [lon, lat])
+          },
+          properties: {
+            mmsi: mmsi,
+            shipName: shipInfo[mmsi]?.name || "Unknown Ship",
+            messageType: shipInfo[mmsi]?.type || "Unknown",
+            lastUpdate: shipInfo[mmsi]?.time || "Unknown"
+          }
+        }));
+    
+      const geojson = {
+        type: "FeatureCollection",
+        features: features
+      };
+    
+      const blob = new Blob(
+        [JSON.stringify(geojson, null, 2)],
+        { type: "application/geo+json" }
+      );
+    
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+    
+      link.href = url;
+      link.download = "ais_trails.geojson";
+      link.click();
+    
+      URL.revokeObjectURL(url);
     }
     
 socket.onmessage = async function (event) {
