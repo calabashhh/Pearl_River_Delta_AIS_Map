@@ -22,7 +22,8 @@
   Static data reports: <span id="staticCount">0</span><br>
   Last message: <span id="lastMessageTime">Waiting...</span><br>
   <button id="pauseButton" onclick="togglePause()">Pause</button>
-  <button onclick="downloadAISData()">Download Data</button>
+  <button onclick="downloadAISData()">Download Data</button><br>
+  <button onclick="downloadGeoJSON()">Download GeoJSON</button>
 </div>
 
 <div id="shipList">
@@ -408,6 +409,46 @@
     
       link.href = url;
       link.download = "ais_capture.json";
+      link.click();
+    
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadGeoJSON() {
+      const features = capturedAIS
+        .filter(v => v.lat !== undefined && v.lon !== undefined)
+        .map(v => ({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [v.lon, v.lat]
+          },
+          properties: {
+            mmsi: v.mmsi,
+            shipName: v.shipName,
+            messageType: v.messageType,
+            time: v.time,
+            sog: v.sog,
+            cog: v.cog,
+            heading: v.heading
+          }
+        }));
+    
+      const geojson = {
+        type: "FeatureCollection",
+        features: features
+      };
+    
+      const blob = new Blob(
+        [JSON.stringify(geojson, null, 2)],
+        { type: "application/geo+json" }
+      );
+    
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+    
+      link.href = url;
+      link.download = "ais_capture.geojson";
       link.click();
     
       URL.revokeObjectURL(url);
