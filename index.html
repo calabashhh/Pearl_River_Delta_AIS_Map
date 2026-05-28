@@ -23,7 +23,8 @@
   Last message: <span id="lastMessageTime">Waiting...</span><br>
   <button id="pauseButton" onclick="togglePause()">Pause</button>
   <button onclick="downloadAISData()">Download Data</button><br>
-  <button onclick="downloadGeoJSON()">Download GeoJSON</button>
+  <button onclick="downloadGeoJSON()">Download GeoJSON</button><br>
+  <button onclick="clearCapturedData()">Clear Data</button>
 </div>
 
 <div id="shipList">
@@ -115,7 +116,7 @@
 
   #shipList {
     position: absolute;
-    top: 240px;
+    top: 260px;
     right: 20px;
     width: 230px;
     max-height: 300px;
@@ -452,6 +453,11 @@
       link.click();
     
       URL.revokeObjectURL(url);
+    }
+
+    function clearCapturedData() {
+      capturedAIS.length = 0;
+      alert("Captured AIS data cleared.");
     }
     
 socket.onmessage = async function (event) {
